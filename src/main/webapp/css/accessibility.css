@@ -1,0 +1,130 @@
+#a11y-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #1a73e8;
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    font-size: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#a11y-toggle-btn:hover {
+    background: #0d5bba;
+}
+
+#a11y-panel {
+    position: fixed;
+    bottom: 86px;
+    left: 20px;
+    z-index: 9999;
+    width: 280px;
+    max-width: calc(100vw - 40px);
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+    padding: 16px;
+    direction: rtl;
+    font-family: Arial, sans-serif;
+    display: none;
+}
+#a11y-panel.a11y-open {
+    display: block;
+}
+#a11y-panel h2 {
+    margin: 0 0 12px;
+    font-size: 1.1em;
+    text-align: center;
+}
+.a11y-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.a11y-btn {
+    background: #f1f3f4;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 0.95em;
+}
+.a11y-btn:hover {
+    background: #e2e5e7;
+}
+.a11y-btn.a11y-active {
+    background: #1a73e8;
+    color: #ffffff;
+    border-color: #1a73e8;
+}
+.a11y-full-btn {
+    width: 100%;
+}
+#a11y-reset-btn {
+    width: 100%;
+    margin-top: 6px;
+    background: #c0392b;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+#a11y-reset-btn:hover {
+    background: #a5301f;
+}
+
+/* ===== מצבי נגישות בפועל ===== */
+
+html.a11y-font-m2 { font-size: 88%; }
+html.a11y-font-m1 { font-size: 94%; }
+html.a11y-font-1 { font-size: 106%; }
+html.a11y-font-2 { font-size: 112%; }
+html.a11y-font-3 { font-size: 118%; }
+html.a11y-font-4 { font-size: 125%; }
+
+html.a11y-contrast body,
+html.a11y-contrast body * {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+html.a11y-contrast a,
+html.a11y-contrast a * {
+    color: #ffff00 !important;
+}
+
+html.a11y-grayscale {
+    filter: grayscale(100%);
+}
+
+html.a11y-links a {
+    text-decoration: underline !important;
+    font-weight: bold !important;
+    background: #fff59d !important;
+    color: #000000 !important;
+}
+
+html.a11y-readable-font body,
+html.a11y-readable-font body * {
+    font-family: Arial, Helvetica, sans-serif !important;
+    letter-spacing: 0.02em !important;
+    line-height: 1.6 !important;
+}
+
+html.a11y-stop-animations *,
+html.a11y-stop-animations *::before,
+html.a11y-stop-animations *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}

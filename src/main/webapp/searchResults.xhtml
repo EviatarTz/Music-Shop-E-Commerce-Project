@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="primefaces">
+<h:head>
+    <title>תוצאות חיפוש - Music Shop</title>
+    <link rel="stylesheet" href="css/style.css?v=6" />
+    <link rel="stylesheet" href="css/accessibility.css?v=1" />
+    <script src="js/accessibility.js?v=1"></script>
+</h:head>
+<h:body>
+
+    <f:metadata>
+        <f:viewParam name="keyword" value="#{searchBean.keyword}" />
+        <f:viewAction action="#{searchBean.loadResults}" />
+    </f:metadata>
+
+    <h:form id="navForm">
+        <p:menubar>
+            <f:facet name="start">
+                <h:link outcome="home" style="text-decoration:none; color:inherit;">
+                    <h:graphicImage value="images/logo.png" style="height:45px; vertical-align:middle;" />
+                </h:link>
+            </f:facet>
+
+            <p:menuitem value="מוצרים" outcome="products" icon="pi pi-list" />
+            <p:menuitem value="קצת עלינו" outcome="about" icon="pi pi-info-circle" />
+            <p:menuitem value="העגלה שלי" outcome="cart" icon="pi pi-shopping-cart"
+                        rendered="#{sessionScope.user != null}" />
+            <p:menuitem value="ההזמנות שלי" outcome="orders" icon="pi pi-receipt"
+                        rendered="#{sessionScope.user != null}" />
+            <p:menuitem value="הפרופיל שלי" outcome="profile" icon="pi pi-user"
+                        rendered="#{sessionScope.user != null}" />
+            <p:menuitem value="ניהול" outcome="admin" icon="pi pi-cog"
+                        rendered="#{sessionScope.user != null and sessionScope.user.role == 'Administrator'}" />
+
+            <f:facet name="end">
+                <h:panelGroup>
+                    <p:inputText value="#{searchBean.keyword}" placeholder="חיפוש מוצרים..." style="width:160px; margin-inline-end:6px;" />
+                    <p:commandButton icon="pi pi-search" action="#{searchBean.search}" ajax="false" process="@this" style="margin-inline-end:12px;" />
+                    <p:button value="התחבר / הירשם" outcome="login"
+                              rendered="#{sessionScope.user == null}" />
+                    <p:commandButton value="ניהול (#{sessionScope.user.username})" action="#{homeBean.logout}"
+                                     rendered="#{sessionScope.user != null}" />
+                </h:panelGroup>
+            </f:facet>
+        </p:menubar>
+    </h:form>
+
+    <div style="text-align:center; direction:rtl; padding:20px;">
+        <h2>תוצאות חיפוש עבור: "#{searchBean.keyword}"</h2>
+        <p style="color:#666;">נמצאו #{searchBean.results.size()} מוצרים</p>
+    </div>
+
+    <h:panelGroup rendered="#{searchBean.results.isEmpty()}">
+        <div style="text-align:center; padding:40px 20px; direction:rtl;">
+            <p>לא נמצאו מוצרים התואמים את החיפוש.</p>
+            <p:button value="חזרה למוצרים" outcome="products" icon="pi pi-arrow-right" />
+        </div>
+    </h:panelGroup>
+
+    <h:form id="resultsForm" rendered="#{not searchBean.results.isEmpty()}">
+        <p:dataGrid value="#{searchBean.results}" var="product" columns="3" layout="grid">
+            <p:panel>
+                <div style="text-align:center;">
+                    <h:link outcome="productDetails" style="text-decoration:none; color:inherit;">
+                        <f:param name="productId" value="#{product.productId}" />
+                        <div style="width:200px; flex:1 1 auto; min-height:0; margin:0 auto 10px; border-radius:8px; overflow:hidden;
+                            background:#ffffff; display:flex; align-items:center; justify-content:center;
+                            padding:10px; box-sizing:border-box;">
+                            <img src="images/#{categoryBean.getImageFolder(product.categoryId)}/#{product.productName}.webp"
+                                 alt="#{product.productName}"
+                                 style="width:100%; height:100%; object-fit:contain; display:block;"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" />
+                            <i class="pi pi-headphones" style="display:none; font-size:2.5em; color:#8e44ad;"></i>
+                        </div>
+                        <h:outputText value="#{product.productName}" style="font-weight:bold; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-overflow:ellipsis; line-height:1.3em; height:2.6em; flex-shrink:0;" />                    </h:link>
+                    <br/>
+                    <h:outputText value="₪#{product.price}" style="font-weight:bold; font-size:1.1em;" /><br/>                    <p:button value="לפרטים נוספים" style="margin-top:8px;" outcome="productDetails">
+                        <f:param name="productId" value="#{product.productId}" />
+                    </p:button>
+                </div>
+            </p:panel>
+        </p:dataGrid>
+    </h:form>
+
+</h:body>
+</html>

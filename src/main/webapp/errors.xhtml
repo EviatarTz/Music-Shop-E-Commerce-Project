@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html">
+<h:head>
+    <title>Error</title>
+    <link rel="stylesheet" href="css/style.css?v=6" />
+    <link rel="stylesheet" href="css/accessibility.css?v=1" />
+    <script src="js/accessibility.js?v=1"></script>
+</h:head>
+<h:body>
+    <div style="text-align:center; padding:100px 20px;">
+        <h1>Oops!</h1>
+        <p style="font-size:1.2em; color:#333;">#{errorBean.message}</p>
+        <p><h:link outcome="products" value="Back to Shop" /></p>
+    </div>
+</h:body>
+</html>

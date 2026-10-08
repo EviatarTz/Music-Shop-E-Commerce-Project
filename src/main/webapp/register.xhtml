@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html">
+<h:head>
+    <title>Register</title>
+    <link rel="stylesheet" href="css/style.css?v=6" />
+    <link rel="stylesheet" href="css/accessibility.css?v=1" />
+    <script src="js/accessibility.js?v=1"></script>
+</h:head>
+<h:body>
+    <h1>Register</h1>
+    <h:form>
+        <h:messages style="color:red;" />
+        <p>
+            <h:outputLabel for="username" value="שם משתמש: " />
+            <h:inputText id="username" value="#{registerBean.username}" required="true" />
+        </p>
+        <p>
+            <h:outputLabel for="email" value="כתובת אימייל: " />
+            <h:inputText id="email" value="#{registerBean.email}" required="true" />
+        </p>
+        <p>
+            <h:outputLabel for="password" value="סיסמה: " />
+            <h:inputSecret id="password" value="#{registerBean.password}" required="true" />
+        </p>
+        <h:commandButton value="הירשם" action="#{registerBean.register}" />
+    </h:form>
+    <p><h:link outcome="login" value="כבר יש לך חשבון? התחבר" /></p>
+</h:body>
+</html>

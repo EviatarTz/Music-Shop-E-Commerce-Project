@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="primefaces">
+<h:head>
+    <title>קצת עלינו - Music Shop</title>
+    <link rel="stylesheet" href="css/style.css?v=6" />
+    <link rel="stylesheet" href="css/accessibility.css?v=1" />
+    <script src="js/accessibility.js?v=1"></script>
+</h:head>
+<h:body>
+    <h:form id="navForm">
+        <p:menubar>
+            <f:facet name="start">
+                <h:link outcome="home" style="text-decoration:none; color:inherit;">
+                    <h:graphicImage value="images/logo.png" style="height:45px; vertical-align:middle;" />
+                </h:link>
+            </f:facet>
+            <p:menuitem value="מוצרים" outcome="products" icon="pi pi-list" />
+            <p:menuitem value="קצת עלינו" outcome="about" icon="pi pi-info-circle" />
+            <p:menuitem value="העגלה שלי" outcome="cart" icon="pi pi-shopping-cart" rendered="#{sessionScope.user != null}" />
+            <p:menuitem value="ההזמנות שלי" outcome="orders" icon="pi pi-receipt" rendered="#{sessionScope.user != null}" />
+            <p:menuitem value="הפרופיל שלי" outcome="profile" icon="pi pi-user" rendered="#{sessionScope.user != null}" />
+            <p:menuitem value="ניהול" outcome="admin" icon="pi pi-cog" rendered="#{sessionScope.user != null and sessionScope.user.role == 'Administrator'}" />
+            <f:facet name="end">
+                <h:panelGroup>
+                <p:inputText value="#{searchBean.keyword}" placeholder="...חיפוש מוצרים" style="width:160px; margin-inline-end:6px; text-align:right;" />
+                <p:commandButton icon="pi pi-search" action="#{searchBean.search}" ajax="false" process="@this" style="margin-inline-end:12px;" />
+                <p:button value="התחבר / הירשם" outcome="login" rendered="#{sessionScope.user == null}" />
+                <p:commandButton value="התנתק (#{sessionScope.user.username})" action="#{homeBean.logout}" rendered="#{sessionScope.user != null}" />
+                </h:panelGroup>
+            </f:facet>
+        </p:menubar>
+    </h:form>
+
+    <div style="max-width:800px; margin:60px auto; padding:0 20px; text-align:center; direction:rtl;">
+        <h:graphicImage value="images/logo.png" style="height:100px; margin-bottom:20px;" />
+        <h1>קצת עלינו</h1>
+        <p style="font-size:1.15em; line-height:1.7; color:#333;">
+            music-shop היא חנות כלי הנגינה וציוד הסאונד שלכם - אנחנו מציעים מבחר רחב של כלי נגינה,
+            ציוד הגברה ואביזרים נלווים, במחירים נוחים ואיכות ללא פשרות.
+            המטרה שלנו היא להנגיש את עולם המוזיקה לכל מוזיקאי - בין אם אתם מתחילים ובין אם מקצוענים.
+        </p>
+        <p:button value="למוצרים שלנו" outcome="products" style="margin-top:20px;" />
+    </div>
+</h:body>
+</html>

@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap');
+
+body,
+.ui-widget,
+.ui-widget .ui-widget,
+.ui-widget button,
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea {
+    font-family: 'Rubik', 'Segoe UI', Arial, sans-serif;
+}
+
+body .ui-menu.ui-menubar {
+    background: #ffffff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Rubik', 'Segoe UI', Arial, sans-serif;
+    font-weight: 600;
+}
+.ui-datagrid-column {
+    display: flex;
+}
+.ui-datagrid-column .ui-panel {
+    width: 100%;
+    height: 450px;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.ui-datagrid-column .ui-panel-content {
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+.ui-datagrid-column .ui-panel-content > div {
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+.ui-datagrid-column .ui-panel-content > div > a {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}

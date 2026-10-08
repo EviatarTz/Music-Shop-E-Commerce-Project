@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:p="primefaces">
+<h:head>
+    <title>ניהול מוצרים - Music Shop</title>
+    <link rel="stylesheet" href="css/style.css?v=6" />
+    <link rel="stylesheet" href="css/accessibility.css?v=1" />
+    <script src="js/accessibility.js?v=1"></script>
+</h:head>
+<h:body>
+
+    <f:metadata>
+        <f:viewAction action="#{adminBean.checkAdminAccess}" />
+    </f:metadata>
+
+    <h:form id="navForm">
+        <p:menubar>
+            <f:facet name="start">
+                <h:link outcome="home" style="text-decoration:none; color:inherit;">
+                    <h:graphicImage value="images/logo.png" style="height:45px; vertical-align:middle;" />
+                </h:link>
+            </f:facet>
+
+            <p:menuitem value="מוצרים" outcome="products" icon="pi pi-list" />
+            <p:menuitem value="קצת עלינו" outcome="about" icon="pi pi-info-circle" />
+            <p:menuitem value="העגלה שלי" outcome="cart" icon="pi pi-shopping-cart"
+                        rendered="#{sessionScope.user != null}" />
+            <p:menuitem value="ההזמנות שלי" outcome="orders" icon="pi pi-receipt"
+                        rendered="#{sessionScope.user != null}" />
+            <p:menuitem value="הפרופיל שלי" outcome="profile" icon="pi pi-user"
+                        rendered="#{sessionScope.user != null}" />
+            <p:menuitem value="ניהול" outcome="admin" icon="pi pi-cog"
+                        rendered="#{sessionScope.user != null and sessionScope.user.role == 'Administrator'}" />
+
+            <f:facet name="end">
+                <h:panelGroup>
+                    <p:inputText value="#{searchBean.keyword}" placeholder="...חיפוש מוצרים" style="width:160px; margin-inline-end:6px; text-align:right;" />
+                    <p:commandButton icon="pi pi-search" action="#{searchBean.search}" ajax="false" process="@this" style="margin-inline-end:12px;" />
+                    <p:commandButton value="התנתק (#{sessionScope.user.username})" action="#{homeBean.logout}"  />
+                </h:panelGroup>
+            </f:facet>
+        </p:menubar>
+    </h:form>
+
+    <p:growl id="messages" showDetail="true" />
+
+    <div style="max-width:1100px; margin:30px auto; padding:0 20px; direction:rtl;">
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h1>ניהול מוצרים</h1>
+            <h:form id="addTriggerForm">
+                <p:commandButton value="הוסף מוצר חדש" icon="pi pi-plus" type="button"
+                                 onclick="PF('addDialogWidget').show()" />
+            </h:form>
+        </div>
+
+        <h:form id="adminForm">
+            <p:dataTable id="productsTable" value="#{adminBean.products}" var="product" style="width:100%;">
+
+                <p:column headerText="ID" style="width:60px;">
+                    <h:outputText value="#{product.productId}" />
+                </p:column>
+
+                <p:column headerText="שם">
+                    <h:outputText value="#{product.productName}" />
+                </p:column>
+
+                <p:column headerText="תיאור">
+                    <h:outputText value="#{product.description}" />
+                </p:column>
+
+                <p:column headerText="מחיר" style="width:100px;">
+                    <h:outputText value="₪#{product.price}" />
+                </p:column>
+
+                <p:column headerText="תת-קטגוריה" style="width:160px;">
+                    <h:outputText value="#{categoryBean.getSubcategoryName(product.categoryId)}" />
+                </p:column>
+
+                <p:column headerText="פעולות" style="width:160px;">
+                    <p:commandButton icon="pi pi-pencil"
+                                     process="@this"
+                                     action="#{adminBean.openEditDialog(product)}"
+                                     update=":editForm"
+                                     oncomplete="PF('editDialogWidget').show()"
+                                     style="margin-inline-end:6px;" />
+                    <p:commandButton icon="pi pi-trash"
+                                     process="@this"
+                                     action="#{adminBean.deleteProduct(product.productId)}"
+                                     update="productsTable messages"
+                                     styleClass="ui-button-danger"
+                                     onclick="if(!confirm('למחוק את המוצר?')) return false;" />
+                </p:column>
+
+            </p:dataTable>
+        </h:form>
+
+        <h:form id="addForm" enctype="multipart/form-data">
+            <p:dialog header="הוספת מוצר חדש" widgetVar="addDialogWidget" modal="true" width="400">
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <p:outputLabel for="newName" value="שם מוצר:" />
+                    <p:inputText id="newName" value="#{adminBean.newProductName}" required="true" />
+
+                    <p:outputLabel for="newDesc" value="תיאור:" />
+                    <p:inputTextarea id="newDesc" value="#{adminBean.newDescription}" />
+
+                    <p:outputLabel for="newPrice" value="מחיר:" />
+                    <p:inputText id="newPrice" value="#{adminBean.newPrice}" />
+
+                    <p:outputLabel for="newCat" value="תת-קטגוריה:" />
+                    <p:selectOneMenu id="newCat" value="#{adminBean.newCategoryId}">
+                        <f:selectItem itemLabel="-- בחר תת-קטגוריה --" itemValue="0" noSelectionOption="true" />
+                        <f:selectItems value="#{categoryBean.groupedSubcategoryItems}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="newImage" value="תמונה (webp):" />
+                    <p:fileUpload id="newImage" mode="simple" value="#{adminBean.newImage}"
+                                  allowTypes="/(\.|\/)(webp)$/" />
+
+                    <div style="text-align:left; margin-top:10px;">
+                        <p:commandButton value="הוסף מוצר" icon="pi pi-plus"
+                                         action="#{adminBean.addProduct}"
+                                         ajax="false"
+                                         style="margin-inline-end:6px;" />
+                        <p:commandButton value="ביטול" type="button" onclick="PF('addDialogWidget').hide()" />
+                    </div>
+                </div>
+            </p:dialog>
+        </h:form>
+
+        <h:form id="editForm" enctype="multipart/form-data">
+            <h:inputHidden value="#{adminBean.editProduct.productId}" />
+            <p:dialog header="עריכת מוצר" widgetVar="editDialogWidget" modal="true" width="400">
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <p:outputLabel for="editName" value="שם מוצר:" />
+                    <p:inputText id="editName" value="#{adminBean.editProduct.productName}" required="true" />
+
+                    <p:outputLabel for="editDesc" value="תיאור:" />
+                    <p:inputTextarea id="editDesc" value="#{adminBean.editProduct.description}" />
+
+                    <p:outputLabel for="editPrice" value="מחיר:" />
+                    <p:inputText id="editPrice" value="#{adminBean.editProduct.price}" />
+
+                    <p:outputLabel for="editCat" value="תת-קטגוריה:" />
+                    <p:selectOneMenu id="editCat" value="#{adminBean.editProduct.categoryId}">
+                        <f:selectItem itemLabel="-- בחר תת-קטגוריה --" itemValue="0" noSelectionOption="true" />
+                        <f:selectItems value="#{categoryBean.groupedSubcategoryItems}" />
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="editImage" value="תמונה חדשה (רשות, webp):" />
+                    <p:fileUpload id="editImage" mode="simple" value="#{adminBean.editImage}"
+                                  allowTypes="/(\.|\/)(webp)$/" />
+
+                    <div style="text-align:left; margin-top:10px;">
+                        <p:commandButton value="שמור" icon="pi pi-check"
+                                         action="#{adminBean.saveEdit}"
+                                         ajax="false"
+                                         style="margin-inline-end:6px;" />
+                        <p:commandButton value="ביטול" type="button" onclick="PF('editDialogWidget').hide()" />
+                    </div>
+                </div>
+            </p:dialog>
+        </h:form>
+
+    </div>
+
+</h:body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="primefaces">
+<h:head>
+    <title>Login</title>
+    <link rel="stylesheet" href="css/style.css?v=6" />
+    <link rel="stylesheet" href="css/accessibility.css?v=1" />
+    <script src="js/accessibility.js?v=1"></script>
+    <style>
+        .register-link {
+            color: #4b1e78;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.15s ease;
+        }
+        .register-link:hover {
+            color: #6b2fa8;
+            text-decoration: underline;
+        }
+    </style>
+</h:head>
+<h:body>
+
+    <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; box-sizing:border-box; padding:20px;">
+        <div style="width:100%; max-width:380px; background:#ffffff; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1); padding:36px 32px; text-align:center;">
+
+            <h1 style="margin-top:0; margin-bottom:24px; color:#000000;">התחברות</h1>
+
+            <h:form>
+                <h:messages style="color:#c0392b; display:block; margin-bottom:12px;" />
+
+                <div style="display:flex; flex-direction:column; gap:16px; text-align:left;">
+                    <div>
+                        <p:outputLabel for="username" value=":שם משתמש" style="display:block; margin-bottom:4px; text-align:right;" />
+                        <p:inputText id="username" value="#{loginBean.username}" style="width:100%; box-sizing:border-box;" />
+                    </div>
+                    <div>
+                        <p:outputLabel for="password" value=":סיסמה" style="display:block; margin-bottom:4px; text-align:right;" />
+                        <p:password id="password" value="#{loginBean.password}" feedback="false" style="width:100%; box-sizing:border-box;" />
+                    </div>
+                </div>
+
+                <p:commandButton value="התחבר" icon="pi pi-sign-in" action="#{loginBean.login}"
+                                 style="width:100%; margin-top:24px; justify-content:center;" />
+            </h:form>
+
+            <p style="margin-top:20px; margin-bottom:0;">
+                <h:link outcome="register" value="עדיין אין לך חשבון? הירשם" styleClass="register-link" />
+            </p>
+
+        </div>
+    </div>
+
+</h:body>
+</html>
