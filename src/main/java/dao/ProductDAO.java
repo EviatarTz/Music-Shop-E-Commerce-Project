@@ -19,7 +19,7 @@ public class ProductDAO {
                 product.setProductId(res.getInt("product_id"));
                 product.setProductName(res.getString("product_name"));
                 product.setDescription(res.getString("description"));
-                product.setPrice(res.getInt("price"));
+                product.setPrice(res.getDouble("price"));
                 product.setCategoryId(res.getInt("category_id"));
 
                 products.add(product);
@@ -41,7 +41,7 @@ public class ProductDAO {
                 product.setProductId(res.getInt("product_id"));
                 product.setProductName(res.getString("product_name"));
                 product.setDescription(res.getString("description"));
-                product.setPrice(res.getInt("price"));
+                product.setPrice(res.getDouble("price"));
                 product.setCategoryId(res.getInt("category_id"));
                 return product;
             }
