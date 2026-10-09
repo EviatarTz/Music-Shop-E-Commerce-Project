@@ -17,12 +17,12 @@ public class OrderService {
     private final InventoryDAO inventoryDAO = new InventoryDAO();
     private final ProductDAO productDAO = new ProductDAO();
 
-    public boolean checkout(int cartId, int userId) {
+    public int checkout(int cartId, int userId) {
 
         List<CartItem> cartItems = cartDAO.getCartItems(cartId);
 
         if (cartItems.isEmpty()) {
-            return false;
+            return -1;
         }
 
         double totalPrice = 0;
@@ -30,7 +30,7 @@ public class OrderService {
 
         for (CartItem item : cartItems) {
             if (!inventoryDAO.hasEnoughStock(item.getProductId(), item.getQuantity())) {
-                return false;
+                return -1;
             }
             Product product = productDAO.getProductById(item.getProductId());
             totalPrice += product.getPrice() * item.getQuantity();
@@ -44,7 +44,7 @@ public class OrderService {
         int orderId = orderDAO.createOrder(order);
 
         if (orderId == -1) {
-            return false;
+            return -1;
         }
 
         for (CartItem item : cartItems) {
@@ -63,7 +63,7 @@ public class OrderService {
 
         cartDAO.clearCart(cartId);
 
-        return true;
+        return orderId;
 
     }
 

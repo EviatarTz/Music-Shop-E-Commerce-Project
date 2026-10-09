@@ -1,7 +1,6 @@
 package managedbeans;
 
 import beans.CartItem;
-import beans.Order;
 import beans.Product;
 import beans.User;
 import jakarta.enterprise.context.RequestScoped;
@@ -75,28 +74,16 @@ public class CheckoutBean implements Serializable {
         }
 
         int cartId = cartService.getOrCreateCartId(user.getUserId());
-        boolean success = orderService.checkout(cartId, user.getUserId());
+        int orderId = orderService.checkout(cartId, user.getUserId());
 
-        if (!success) {
+        if (orderId == -1) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "לא ניתן להשלים את ההזמנה (ייתכן שהעגלה ריקה או שאין מספיק מלאי)", null));
             return null;
         }
 
-        List<Order> userOrders = orderService.getOrdersByUser(user.getUserId());
-        Order latestOrder = null;
-        for (Order o : userOrders) {
-            if (latestOrder == null || o.getOrderId() > latestOrder.getOrderId()) {
-                latestOrder = o;
-            }
-        }
-
-        if (latestOrder == null) {
-            return "products?faces-redirect=true";
-        }
-
-        return "orderConfirmation?faces-redirect=true&orderId=" + latestOrder.getOrderId();
+        return "orderConfirmation?faces-redirect=true&orderId=" + orderId;
     }
 
     private void redirect(String page) {

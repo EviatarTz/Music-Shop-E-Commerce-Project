@@ -101,3 +101,7 @@ pom.xml                  הגדרות Maven
 
 - קובץ ה-WAR עצמו **לא** נשמר ב-repository (ראה `.gitignore`) — הוא נוצר מחדש בכל `mvn clean package`.
 - פרטי ההתחברות למסד הנתונים כרגע חשופים בקוד (`ConnectionManager.java`). לפרויקט שמפורסם ב-repository ציבורי, מומלץ בעתיד להעביר אותם לקובץ `.properties` חיצוני שלא עולה ל-git.
+- תיקיית התמונות של המוצרים (`AdminBean.IMAGES_BASE_PATH`) מצביעה כברירת מחדל לתיקיית המקור של הפרויקט במחשב הפיתוח, כדי שתמונות שהועלו דרך פאנל הניהול ישרדו `mvn clean package` / redeploy. אם מריצים את הפרויקט ממחשב אחר, אפשר לשנות את הנתיב בלי לקמפל מחדש, על ידי העברת ארגומנט JVM ל-Tomcat (למשל בקובץ `bin/setenv.sh` / `bin/setenv.bat`):
+  ```
+  -Dmusic.shop.images.path=/path/to/other/images/folder
+  ```

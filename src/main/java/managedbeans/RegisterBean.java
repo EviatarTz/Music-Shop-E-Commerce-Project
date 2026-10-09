@@ -37,7 +37,7 @@ public class RegisterBean implements Serializable {
         } else {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "כתובת האימייל כבר רשומה במערכת", null));
+                            "שם המשתמש או כתובת האימייל כבר קיימים במערכת", null));
             return null;
         }
     }

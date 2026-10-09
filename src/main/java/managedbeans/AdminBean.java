@@ -27,7 +27,8 @@ public class AdminBean implements Serializable {
 
     // תיקיית המקור של הפרויקט - כדי שהתמונות ישרדו rebuild, לא כותבים לתיקיית ה-deploy
     private static final String IMAGES_BASE_PATH =
-            "/Users/eviatar_tzabari/IdeaProjects/music-shop/src/main/webapp/images";
+            System.getProperty("music.shop.images.path",
+                    "/Users/eviatar_tzabari/IdeaProjects/music-shop/src/main/webapp/images");
 
     private final ProductService productService = new ProductService();
 
