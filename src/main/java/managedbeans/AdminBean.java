@@ -25,11 +25,19 @@ import java.util.List;
 @RequestScoped
 public class AdminBean implements Serializable {
 
-    // תיקיית המקור של הפרויקט - כדי שהתמונות ישרדו rebuild, לא כותבים לתיקיית ה-deploy
+    /*
+        Base path for product images. Defaults to the project's source directory (not the deploy
+        folder), so uploaded images survive mvn clean package / redeploy.
+        This path can be overridden without recompiling, by passing a JVM argument to Tomcat:
+        -Dmusic.shop.images.path=/path/to/other/images/folder
+        (e.g. in Tomcat's bin/setenv.sh / bin/setenv.bat). If the argument isn't provided, the
+        default path configured here is used (matches the current development machine).
+     */
     private static final String IMAGES_BASE_PATH =
             System.getProperty("music.shop.images.path",
                     "/Users/eviatar_tzabari/IdeaProjects/music-shop/src/main/webapp/images");
 
+    
     private final ProductService productService = new ProductService();
 
     @Inject
