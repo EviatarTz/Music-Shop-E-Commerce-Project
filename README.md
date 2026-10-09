@@ -41,11 +41,13 @@ USER:     postgres
 PASSWORD: 1234
 ```
 
-### יצירת מסד הנתונים משחזור (אם קיים קובץ `music_shop_db.sql`)
+### יצירת מסד הנתונים משחזור
+
+הדאמפ של מסד הנתונים נמצא בתיקייה `database/music_shop_db.sql`.
 
 ```bash
 createdb -U postgres music_shop_db
-psql -U postgres -h localhost music_shop_db < music_shop_db.sql
+psql -U postgres -h localhost music_shop_db < database/music_shop_db.sql
 ```
 
 > אם שם המשתמש/הסיסמה של PostgreSQL במחשב שלך שונים מ-`postgres`/`1234`, יש לעדכן את הערכים האלה גם בקובץ `ConnectionManager.java` וגם בפקודות לעיל.
