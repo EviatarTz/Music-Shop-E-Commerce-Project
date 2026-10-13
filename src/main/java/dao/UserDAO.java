@@ -133,7 +133,7 @@ public class UserDAO {
         }catch(Exception e){
             e.printStackTrace();
         }
-        /* If the connection to the database hs failed */
+        /* If the connection to the database hs failed or the user does not exist */
         return null;
     }
 
@@ -162,6 +162,7 @@ public class UserDAO {
     /* Checks whether the given email is already used by a different user (for profile updates) */
     public boolean emailTakenByOther(String email, int userId){
 
+        /* Select all records with this email other than the checked user */
         String sql = "SELECT 1 FROM users WHERE email = ? AND user_id <> ?";
 
         /* Tries to connect to the database and creates a prepared statement */
