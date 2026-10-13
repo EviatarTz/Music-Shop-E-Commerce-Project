@@ -7,6 +7,10 @@ import service.ProductService;
 
 import java.io.Serializable;
 
+/**
+ * Backing bean for the product-details page (productDetails.xhtml): loads
+ * the single product given by the productId passed in the request.
+ */
 @Named("productDetailsBean")
 @RequestScoped
 public class ProductDetailsBean implements Serializable {
@@ -16,6 +20,7 @@ public class ProductDetailsBean implements Serializable {
     private int productId;
     private Product product;
 
+    /* Loads the product for the current productId */
     public void loadProduct() {
         product = productService.getProductById(productId);
     }

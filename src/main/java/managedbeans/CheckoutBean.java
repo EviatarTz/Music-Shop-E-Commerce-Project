@@ -16,6 +16,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Backing bean for the checkout page (checkout.xhtml): shows the cart's
+ * contents one more time before confirming, then submits the order.
+ */
 @Named("checkoutBean")
 @RequestScoped
 public class CheckoutBean implements Serializable {
@@ -28,6 +32,7 @@ public class CheckoutBean implements Serializable {
     private double total;
     private boolean loaded = false;
 
+    /* View-model row: a cart item joined with its product, for display on the checkout page */
     public static class CheckoutLine implements Serializable {
         private final Product product;
         private final int quantity;
@@ -42,6 +47,7 @@ public class CheckoutBean implements Serializable {
         public double getSubtotal() { return product.getPrice() * quantity; }
     }
     /*
+    // Superseded by loadItems() below - kept here for reference only.
     public void checkLoginAndLoad() {
         User user = getLoggedInUser();
         if (user == null) {
@@ -67,6 +73,11 @@ public class CheckoutBean implements Serializable {
 
      */
 
+    /*
+        Confirms the order: delegates to OrderService.checkout(), which returns the
+        new order's ID on success or -1 on failure (empty cart / insufficient stock).
+        On success, navigates to the order-confirmation page with that order's ID.
+    */
     public String submitOrder() {
         User user = getLoggedInUser();
         if (user == null) {
@@ -108,6 +119,7 @@ public class CheckoutBean implements Serializable {
         return total;
     }
 
+    /* Lazily loads the cart contents once per request, if a user is logged in */
     private void ensureLoaded() {
         if (!loaded) {
             User user = getLoggedInUser();
@@ -118,6 +130,7 @@ public class CheckoutBean implements Serializable {
         }
     }
 
+    /* Loads the user's cart items and joins each one with its product */
     private void loadItems(User user) {
         items = new ArrayList<>();
         total = 0;
@@ -135,6 +148,7 @@ public class CheckoutBean implements Serializable {
         }
     }
 
+    /* Redirects to login if no user is logged in, otherwise loads the cart for review */
     public void checkLoginAndLoad() {
         User user = getLoggedInUser();
         if (user == null) {

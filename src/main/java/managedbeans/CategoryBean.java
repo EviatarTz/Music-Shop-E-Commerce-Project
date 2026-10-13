@@ -9,10 +9,17 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * Application-wide static catalog of categories and subcategories.
+ * Builds, once at startup, the category -> subcategory tree, the subcategory
+ * ID -> image-folder mapping, and the grouped dropdown items used by the
+ * admin "add/edit product" form.
+ */
 @Named("categoryBean")
 @ApplicationScoped
 public class CategoryBean implements Serializable {
 
+    /* A subcategory: its stable ID, display name, image folder, and the product ID range it covers */
     public static class Subcategory implements Serializable {
         private final int id;
         private final String name;
@@ -35,7 +42,7 @@ public class CategoryBean implements Serializable {
         public int getMaxId() { return maxId; }
     }
 
-    // מבנה עזר פנימי בזמן בנייה בלבד - עוד לפני שיש מזהה יציב
+    // Internal helper structure used only during setup, before a stable ID exists
     private static class RawSub {
         final String name, folder;
         final int minId, maxId;
@@ -51,9 +58,9 @@ public class CategoryBean implements Serializable {
     private final Map<String, String> categoryFolders = new LinkedHashMap<>();
     private final Map<String, List<Subcategory>> subcategoriesByCategory = new LinkedHashMap<>();
 
-    // מזהה תת-קטגוריה (1-46) -> נתיב תיקייה יחסי, לדוגמה "Keyboards/Synths"
+    // Subcategory ID (1-46) -> relative image-folder path, e.g. "Keyboards/Synths"
     private final Map<Integer, String> imageFolderById = new LinkedHashMap<>();
-    // מזהה תת-קטגוריה -> שם תצוגה בעברית, לנוחות (למשל בטבלת הניהול)
+    // Subcategory ID -> Hebrew display name, for convenience (e.g. in the admin table)
     private final Map<Integer, String> subcategoryNameById = new LinkedHashMap<>();
 
     private final List<SelectItem> groupedSubcategoryItems = new ArrayList<>();
@@ -153,6 +160,7 @@ public class CategoryBean implements Serializable {
         return new RawSub(name, folder, minId, maxId);
     }
 
+    /* Assigns a stable incrementing ID to each raw subcategory and registers it in all the maps */
     private void addCategory(String categoryKey, RawSub... raws) {
         List<Subcategory> list = new ArrayList<>();
         String categoryFolder = categoryFolders.get(categoryKey);
@@ -165,6 +173,7 @@ public class CategoryBean implements Serializable {
         subcategoriesByCategory.put(categoryKey, list);
     }
 
+    /* Builds the grouped (by category) dropdown items used in the admin form */
     private void buildGroupedItems() {
         for (Map.Entry<String, List<Subcategory>> entry : subcategoriesByCategory.entrySet()) {
             String groupLabel = categoryNames.get(entry.getKey());
@@ -179,31 +188,33 @@ public class CategoryBean implements Serializable {
         }
     }
 
-    // --- משמש את subcategories.xhtml - נשאר ללא שינוי ---
+    // --- Used by subcategories.xhtml - left unchanged ---
     public String getCategoryName(String categoryId) {
         return categoryNames.getOrDefault(categoryId, "");
     }
 
-    // --- משמש את subcategories.xhtml - נשאר ללא שינוי ---
+    // --- Used by subcategories.xhtml - left unchanged ---
     public List<Subcategory> getSubcategories(String categoryId) {
         return subcategoriesByCategory.getOrDefault(categoryId, Collections.emptyList());
     }
 
-    // --- חדש: לשימוש בתפריט הנפתח בעמוד הניהול ---
+    // --- New: used by the dropdown menu in the admin page ---
     public List<SelectItem> getGroupedSubcategoryItems() {
         return groupedSubcategoryItems;
     }
 
-    // --- חדש: לתצוגה נוחה בטבלת הניהול ---
+    // --- New: for convenient display in the admin table ---
     public String getSubcategoryName(int categoryId) {
         return subcategoryNameById.getOrDefault(categoryId, "");
     }
 
     /**
-     * מחזיר את הנתיב היחסי לתיקיית התמונות - לפי מזהה תת-הקטגוריה (categoryId),
-     * לדוגמה "Keyboards/Synths". מחזיר מחרוזת ריקה אם לא נמצאה התאמה.
+     * Returns the relative image-folder path for a given subcategory ID
+     * (categoryId), e.g. "Keyboards/Synths". Returns an empty string if no
+     * match is found.
      *
-     * שימו לב: זהו שינוי מהותי - הפרמטר עכשיו הוא categoryId ולא productId כמו קודם.
+     * Note: this is a meaningful change from before - the parameter is now
+     * categoryId, not productId as it used to be.
      */
     public String getImageFolder(int categoryId) {
         return imageFolderById.getOrDefault(categoryId, "");

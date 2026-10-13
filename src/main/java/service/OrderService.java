@@ -1,6 +1,5 @@
 package service;
 
-
 import beans.CartItem;
 import beans.Order;
 import beans.OrderItem;
@@ -9,6 +8,11 @@ import dao.*;
 import java.sql.Timestamp;
 import java.util.List;
 
+/**
+ * Business logic for turning a cart into an order: validates stock,
+ * computes the total price, creates the order and its line items,
+ * reduces inventory, and clears the cart.
+ */
 public class OrderService {
 
     private final CartDAO cartDAO = new CartDAO();
@@ -17,6 +21,21 @@ public class OrderService {
     private final InventoryDAO inventoryDAO = new InventoryDAO();
     private final ProductDAO productDAO = new ProductDAO();
 
+    /*
+      Performs the full checkout flow for the given cart/user:
+      1. Loads the cart's line items (fails if the cart is empty).
+      2. Verifies there's enough stock for every item and computes the total price.
+      3. Creates the order row.
+      4. Creates each order line item and reduces the corresponding stock.
+      5. Clears the cart.
+      Returns the new order's ID on success, or -1 on any failure (empty cart,
+      insufficient stock, or the order row failing to be created).
+
+      Note: the stock check (step 2) and the stock reduction (step 4) are not
+      wrapped in a single database transaction, so under concurrent checkouts
+      for the same product there's a theoretical race condition between the
+      check and the reduction. Not an issue for normal single-user testing.
+    */
     public int checkout(int cartId, int userId) {
 
         List<CartItem> cartItems = cartDAO.getCartItems(cartId);
@@ -67,14 +86,17 @@ public class OrderService {
 
     }
 
+    /* Fetches a single order by its ID */
     public Order getOrderById(int orderId) {
         return orderDAO.getOrderById(orderId);
     }
 
+    /* Fetches every order placed by a given user */
     public List<Order> getOrdersByUser(int userId) {
         return orderDAO.getOrdersByUser(userId);
     }
 
+    /* Fetches every line item that belongs to a given order */
     public List<OrderItem> getOrderItems(int orderId) {
         return orderItemDAO.getOrderItemsByOrderId(orderId);
     }

@@ -11,6 +11,10 @@ import jakarta.inject.Named;
 import java.io.IOException;
 import java.io.Serializable;
 
+/**
+ * Backing bean for the profile page (profile.xhtml): lets the logged-in
+ * user update their username/email, and separately change their password.
+ */
 @Named("profileBean")
 @RequestScoped
 public class ProfileBean implements Serializable {
@@ -24,6 +28,7 @@ public class ProfileBean implements Serializable {
     private String newPassword;
     private String confirmPassword;
 
+    /* Redirects to login if no user is logged in, otherwise loads their current details into the form */
     public void checkLoginAndLoad() {
         User user = getLoggedInUser();
         if (user == null) {
@@ -34,6 +39,7 @@ public class ProfileBean implements Serializable {
         email = user.getEmail();
     }
 
+    /* Saves the updated username/email (password is kept unchanged) */
     public void updateDetails() {
         User user = getLoggedInUser();
         if (user == null) {
@@ -64,6 +70,7 @@ public class ProfileBean implements Serializable {
         }
     }
 
+    /* Validates the current password and the new/confirm pair, then saves the new password */
     public void changePassword() {
         User user = getLoggedInUser();
         if (user == null) {

@@ -11,6 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Backing bean for the search box and the search-results page
+ * (searchResults.xhtml).
+ */
 @Named("searchBean")
 @RequestScoped
 public class SearchBean implements Serializable {
@@ -20,6 +24,7 @@ public class SearchBean implements Serializable {
     private String keyword;
     private List<Product> results = Collections.emptyList();
 
+    /* Builds the redirect URL (with the URL-encoded keyword) to the search-results page */
     public String search() {
         if (keyword == null || keyword.isBlank()) {
             return null;
@@ -28,6 +33,7 @@ public class SearchBean implements Serializable {
         return "/searchResults.xhtml?faces-redirect=true&keyword=" + encoded;
     }
 
+    /* Runs the search for the current keyword, populating 'results' */
     public void loadResults() {
         if (keyword != null && !keyword.isBlank()) {
             results = productService.searchProducts(keyword);

@@ -9,6 +9,10 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Backing bean for the subcategory product-list page (categoryProducts.xhtml):
+ * loads every product belonging to the subcategory given in the request.
+ */
 @Named("categoryProductsBean")
 @RequestScoped
 public class CategoryProductsBean implements Serializable {
@@ -18,6 +22,7 @@ public class CategoryProductsBean implements Serializable {
     private int categoryId;
     private List<Product> products = Collections.emptyList();
 
+    /* Loads the products for the current categoryId */
     public void loadProducts() {
         products = productService.getProductsByCategory(categoryId);
     }

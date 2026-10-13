@@ -21,6 +21,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+/**
+ * Backing bean for the admin panel (admin.xhtml): lists products and
+ * handles adding, editing and deleting them, including saving an uploaded
+ * product image to disk.
+ */
 @Named("adminBean")
 @RequestScoped
 public class AdminBean implements Serializable {
@@ -37,7 +42,7 @@ public class AdminBean implements Serializable {
             System.getProperty("music.shop.images.path",
                     "/Users/eviatar_tzabari/IdeaProjects/music-shop/src/main/webapp/images");
 
-    
+
     private final ProductService productService = new ProductService();
 
     @Inject
@@ -46,17 +51,18 @@ public class AdminBean implements Serializable {
     private List<Product> products;
     private boolean loaded = false;
 
-    // שדות טופס "הוספת מוצר חדש"
+    /* Fields for the "add new product" form */
     private String newProductName;
     private String newDescription;
     private double newPrice;
     private int newCategoryId;
     private UploadedFile newImage;
 
-    // עותק עבודה לדיאלוג העריכה - לא נוגעים ישירות באובייקט מתוך הרשימה
+    /* Working copy used by the edit dialog - we don't mutate the object from the list directly */
     private Product editProduct = new Product();
     private UploadedFile editImage;
 
+    /* Redirects away if the current session user is not a logged-in Administrator */
     public void checkAdminAccess() {
         User user = getLoggedInUser();
         if (user == null) {
@@ -68,6 +74,7 @@ public class AdminBean implements Serializable {
         }
     }
 
+    /* Lazily loads the product list once per request */
     private void ensureLoaded() {
         if (!loaded) {
             products = productService.getAllProducts();
@@ -80,6 +87,7 @@ public class AdminBean implements Serializable {
         return products;
     }
 
+    /* Handles the "add new product" form submission */
     public void addProduct() {
         if (!isAdmin()) {
             return;
@@ -115,6 +123,7 @@ public class AdminBean implements Serializable {
         }
     }
 
+    /* Populates the edit dialog with a working copy of the selected product */
     public void openEditDialog(Product product) {
         Product copy = new Product();
         copy.setProductId(product.getProductId());
@@ -126,6 +135,7 @@ public class AdminBean implements Serializable {
         editImage = null;
     }
 
+    /* Saves the changes made in the edit dialog */
     public void saveEdit() {
         if (!isAdmin() || editProduct == null) {
             return;
@@ -151,6 +161,7 @@ public class AdminBean implements Serializable {
         }
     }
 
+    /* Deletes a product by its ID */
     public void deleteProduct(int productId) {
         if (!isAdmin()) {
             return;
@@ -168,11 +179,12 @@ public class AdminBean implements Serializable {
         }
     }
 
-    /**
-     * שומר את קובץ התמונה שהועלה ישירות לתיקיית המקור (src/main/webapp/images),
-     * בתיקיית תת-הקטגוריה המתאימה, ותחת שם הקובץ = שם המוצר (עם סיומת .webp).
-     * דורש שהאדמין יעלה קובץ בפורמט webp, כי כל האתר מצפה לתמונות עם הסיומת הזו.
-     */
+    /*
+        Saves the uploaded image file directly to the source tree (src/main/webapp/images),
+        under the matching subcategory folder, named after the product (with a .webp extension).
+        Requires the admin to upload a .webp file, since the whole site expects images with
+        that extension.
+    */
     private void saveImage(UploadedFile file, String productName, int categoryId) {
         if (file == null || file.getSize() <= 0) {
             return;
@@ -203,6 +215,7 @@ public class AdminBean implements Serializable {
         }
     }
 
+    /* Returns whether the current session user is a logged-in Administrator */
     private boolean isAdmin() {
         User user = getLoggedInUser();
         return user != null && "Administrator".equals(user.getRole());

@@ -10,6 +10,10 @@ import jakarta.inject.Named;
 
 import java.io.Serializable;
 
+/**
+ * Backing bean for the registration page (register.xhtml): creates a new
+ * "CUSTOMER" user account.
+ */
 @Named("registerBean")
 @RequestScoped
 public class RegisterBean implements Serializable {
@@ -20,6 +24,7 @@ public class RegisterBean implements Serializable {
     private String email;
     private String password;
 
+    /* Registers a new customer account; fails if the email or username is already taken */
     public String register() {
         User user = new User();
         user.setUsername(username);

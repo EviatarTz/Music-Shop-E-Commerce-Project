@@ -14,6 +14,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Backing bean for the cart page (cart.xhtml): loads the logged-in user's
+ * cart as a list of CartLine view-model rows, and lets them update
+ * quantities or remove items.
+ */
 @Named("cartBean")
 @RequestScoped
 public class CartBean implements Serializable {
@@ -26,6 +31,7 @@ public class CartBean implements Serializable {
 
     private boolean loaded = false;
 
+    /* View-model row: a cart item joined with its product, for display in the UI */
     public static class CartLine implements Serializable {
         private final int cartItemId;
         private final Product product;
@@ -44,6 +50,7 @@ public class CartBean implements Serializable {
         public double getSubtotal() { return product.getPrice() * quantity; }
     }
 
+    /* Redirects to login if no user is logged in, otherwise loads the cart */
     public void checkLoginAndLoad() {
         User user = getLoggedInUser();
         if (user == null) {
@@ -57,6 +64,7 @@ public class CartBean implements Serializable {
         loadItems(user);
     }
 
+    /* Loads the user's cart items and joins each one with its product */
     private void loadItems(User user) {
         items = new ArrayList<>();
         total = 0;
@@ -74,6 +82,7 @@ public class CartBean implements Serializable {
         }
     }
 
+    /* Removes a line item and reloads the cart */
     public void removeItem(int cartItemId) {
         cartService.removeProductFromCart(cartItemId);
         User user = getLoggedInUser();
@@ -82,6 +91,7 @@ public class CartBean implements Serializable {
         }
     }
 
+    /* Updates a line item's quantity (clamped to a minimum of 1) and reloads the cart */
     public void updateQuantity(CartLine line) {
         if (line.getQuantity() < 1) {
             line.setQuantity(1);
@@ -93,6 +103,7 @@ public class CartBean implements Serializable {
         }
     }
 
+    /* Lazily loads the cart once per request, if a user is logged in */
     private void ensureLoaded() {
         if (!loaded) {
             User user = getLoggedInUser();

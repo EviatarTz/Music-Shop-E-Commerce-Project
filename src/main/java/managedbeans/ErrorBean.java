@@ -7,6 +7,10 @@ import jakarta.inject.Named;
 
 import java.io.Serializable;
 
+/**
+ * Backing bean for the custom error page: translates the exception that
+ * triggered the error page into a user-facing message.
+ */
 @Named("errorBean")
 @RequestScoped
 public class ErrorBean implements Serializable {
@@ -18,10 +22,10 @@ public class ErrorBean implements Serializable {
                 .get("jakarta.servlet.error.exception");
 
         if (exceptionAttr instanceof BusinessException businessException) {
-            // שגיאות עסקיות בטוח להציג כמו שהן למשתמש
+            // Business errors are safe to show to the user as-is
             return businessException.getMessage();
         } else if (exceptionAttr instanceof Throwable) {
-            // שגיאות מערכת/לא צפויות - לא חושפים פרטים טכניים
+            // System/unexpected errors - don't expose technical details
             return "An unexpected error occurred. Please try again later.";
         } else {
             return "Page not found.";

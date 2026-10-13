@@ -10,54 +10,80 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.ArrayList;
 
-
+/**
+ * Data-access class for the "cart" and "cart_items" tables.
+ */
 public class CartDAO {
 
+    /* Adds a single line item (product + quantity) to the given cart */
     public boolean addProductToCart(int cartId,int productId,int quantity){
         String sql = """
                     INSERT INTO cart_items(cart_id,product_id,quantity)
                     VALUES (?, ?, ?)
                 """;
+        /* Tries to open a database connection and create a prepared statement */
         try(Connection conn = ConnectionManager.getConnection(); PreparedStatement statement = conn.prepareStatement(sql)){
 
+            /* Inserts the values (cartId, productId,quantity) to the parameters in the sql query (instead of the ?,?,?) */
             statement.setInt(1, cartId);
             statement.setInt(2, productId);
             statement.setInt(3, quantity);
 
+            /* Execute the query and return true if one or more rows were affected */
             return statement.executeUpdate() > 0;
         }catch(Exception e){
             e.printStackTrace();
         }
-        return false;
+        return false; /* A connection failure case */
     }
 
+    /* Removes a single cart line item by its own ID */
     public boolean removeProductFromCart(int cartItemId){
+
         String sql = "DELETE FROM cart_items WHERE cart_item_id = ?";
 
+        /* Tries to open a database connection and create a prepared statement */
         try(Connection conn = ConnectionManager.getConnection();PreparedStatement statement = conn.prepareStatement(sql)){
+
+            /* Inserts the values (cartId, productId,quantity) to the parameters in the sql query (instead of the ?,?,?) */
             statement.setInt(1,cartItemId);
+
+            /* Execute the query and return true if one or more rows were affected */
             return statement.executeUpdate() > 0;
 
         }catch(Exception e){
             e.printStackTrace();
         }
-        return false;
+        return false; /* A connection failure case */
     }
 
+    /* Returns every line item currently inside the given cart */
     public List<CartItem> getCartItems(int cartId){
+
         List<CartItem> items = new ArrayList<>();
 
         String sql = "SELECT * FROM cart_items WHERE cart_id = ?";
 
+        /* Tries to open a database connection and create a prepared statement */
         try(Connection conn = ConnectionManager.getConnection();PreparedStatement statement = conn.prepareStatement(sql)){
+
+            /* Inserts the values (cartId, productId,quantity) to the parameters in the sql query (instead of the ?,?,?) */
             statement.setInt(1, cartId);
+
+            /* Executes the query and retrieve the matching records */
             ResultSet res = statement.executeQuery();
+
+            /* process each row returned by the query */
             while(res.next()){
+
+                /* create a cart item and populate it with data from the current row*/
                 CartItem item = new CartItem();
                 item.setCartItemId(res.getInt("cart_item_id"));
                 item.setCartId(res.getInt("cart_id"));
                 item.setProductId(res.getInt("product_id"));
                 item.setQuantity(res.getInt("quantity"));
+
+                /* Add the populated item to the result list */
                 items.add(item);
             }
         }catch(Exception e){
@@ -66,58 +92,90 @@ public class CartDAO {
         return items;
     }
 
+    /*
+        Returns the existing cart ID for a user, or creates a new empty cart
+        for them (and returns its generated ID) if they don't have one yet.
+    */
     public int getOrCreateCartId(int userId) {
 
         String selectSql = "SELECT cart_id FROM cart WHERE user_id = ?";
 
+        /* Tries to open a database connection */
         try (Connection conn = ConnectionManager.getConnection()) {
 
+            /* Tries to create a prepared statement */
             try (PreparedStatement select = conn.prepareStatement(selectSql)) {
                 select.setInt(1, userId);
+
+                /* Executes the query and retrieve the matching records */
                 ResultSet res = select.executeQuery();
+
+                /* process each row returned by the query */
                 if (res.next()) {
                     return res.getInt("cart_id");
                 }
             }
 
             String insertSql = "INSERT INTO cart(user_id) VALUES (?)";
+
+            /* Tries to create an insert statement and return the automatically created keys by the insert statement */
             try (PreparedStatement insert = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+
                 insert.setInt(1, userId);
+
+                /* Executes the update */
                 insert.executeUpdate();
+
+                /* Save the keys generated by the insert statement and return the keys */
                 ResultSet keys = insert.getGeneratedKeys();
                 if (keys.next()) {
                     return keys.getInt(1);
                 }
             }
-
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
 
+        /* If the connection has failed */
         return -1;
     }
 
+    /* Deletes every line item in the given cart (used after a successful checkout) */
     public boolean clearCart(int cartId){
         String sql = "DELETE FROM cart_items WHERE cart_id = ?";
+
+        /* Tries to open a database connection and create a prepared statement */
         try(Connection conn = ConnectionManager.getConnection();PreparedStatement statement = conn.prepareStatement(sql)){
+
             statement.setInt(1, cartId);
+
+            /* Execute the statement and return true if there are 0 or more rows returned by that call (the cart table is empty) */
             return statement.executeUpdate() >= 0;
         }catch(Exception e){
             e.printStackTrace();
         }
+
+        /* return false if the connection failed */
         return false;
     }
 
-
+    /* Updates the quantity of a single cart line item */
     public boolean updateQuantity(int cartItemId, int quantity) {
         String sql = "UPDATE cart_items SET quantity = ? WHERE cart_item_id = ?";
+
+        /* Tries to open a database connection and create a prepared statement */
         try (Connection conn = ConnectionManager.getConnection(); PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, quantity);
             statement.setInt(2, cartItemId);
+
+            /* Execute the statement and return true if 1 or more rows are affected */
             return statement.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        /* return false if the connection failed */
         return false;
     }
 }

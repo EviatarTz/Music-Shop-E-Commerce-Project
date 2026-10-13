@@ -15,6 +15,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Backing bean for the order-confirmation page (orderConfirmation.xhtml):
+ * loads a single order (by the ID passed in the request) and its line items,
+ * for display after a successful checkout.
+ */
 @Named("orderConfirmationBean")
 @RequestScoped
 public class OrderConfirmationBean implements Serializable {
@@ -26,6 +31,7 @@ public class OrderConfirmationBean implements Serializable {
     private Order order;
     private List<ConfirmationLine> items = new ArrayList<>();
 
+    /* View-model row: an order line item joined with its product, for display */
     public static class ConfirmationLine implements Serializable {
         private final Product product;
         private final int quantity;
@@ -43,6 +49,10 @@ public class OrderConfirmationBean implements Serializable {
         public double getSubtotal() { return unitPrice * quantity; }
     }
 
+    /*
+        Loads the order for the current orderId, after verifying the user is logged
+        in and that the order actually belongs to them (otherwise redirects away).
+    */
     public void loadOrder() {
         User user = getLoggedInUser();
         if (user == null) {

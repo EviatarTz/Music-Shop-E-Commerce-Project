@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Backing bean for the order-history page (orders.xhtml): lists the
+ * logged-in user's past orders, newest first.
+ */
 @Named("ordersBean")
 @RequestScoped
 public class OrdersBean implements Serializable {
@@ -21,6 +25,7 @@ public class OrdersBean implements Serializable {
 
     private List<Order> orders = new ArrayList<>();
 
+    /* Redirects to login if no user is logged in, otherwise loads their orders (newest first) */
     public void checkLoginAndLoad() {
         User user = getLoggedInUser();
         if (user == null) {

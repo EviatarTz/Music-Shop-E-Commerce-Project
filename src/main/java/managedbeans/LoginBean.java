@@ -10,6 +10,9 @@ import jakarta.inject.Named;
 
 import java.io.Serializable;
 
+/**
+ * Backing bean for the login page (login.xhtml).
+ */
 @Named("loginBean")
 @RequestScoped
 public class LoginBean implements Serializable {
@@ -19,13 +22,15 @@ public class LoginBean implements Serializable {
     private String username;
     private String password;
 
+    /* Authenticates the user and, on success, stores them in the session and navigates to products */
     public String login() {
         User user = userService.login(username, password);
 
         if (user != null) {
-            // כותב לאותו HttpSession attribute "user" שה-Filters וה-Servlets הקיימים
-            // (AuthFilter, AdminFilter, CartServlet וכו') כבר קוראים ממנו - כך שהתאימות
-            // בין העולם הישן (JSP/Servlet) לחדש (JSF) נשמרת בזמן המעבר.
+            // Stored under the same HttpSession attribute "user" that the existing
+            // filters and servlets (AuthFilter, AdminFilter, CartServlet, etc.) already
+            // read from - this keeps the old (JSP/Servlet) and new (JSF) worlds
+            // compatible during the migration.
             FacesContext.getCurrentInstance()
                     .getExternalContext()
                     .getSessionMap()
@@ -35,7 +40,7 @@ public class LoginBean implements Serializable {
         } else {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid username or password", null));
-            return null; // נשאר על אותו עמוד
+            return null; // Stay on the same page
         }
     }
 

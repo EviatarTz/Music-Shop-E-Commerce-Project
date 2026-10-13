@@ -13,6 +13,11 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+/**
+ * Restricts a set of pages that require a logged-in user (cart, checkout,
+ * orders, profile, order confirmation). A guest hitting any of these is
+ * redirected to the login page.
+ */
 @WebFilter(urlPatterns = {
         "/cart", "/order",
         "/cart.xhtml", "/checkout.xhtml", "/orders.xhtml",
