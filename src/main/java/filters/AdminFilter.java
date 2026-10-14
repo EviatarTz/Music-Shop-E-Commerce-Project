@@ -49,7 +49,7 @@ public class AdminFilter implements Filter {
             return;
         }
 
-        /* User (Admin) is authenticated and authorized, continue processing the request */
+        /* User is authenticated and authorized, continue processing the request */
         chain.doFilter(request, response);
     }
 }

@@ -19,7 +19,7 @@ import java.util.*;
 @ApplicationScoped
 public class CategoryBean implements Serializable {
 
-    /* A subcategory: its stable ID, display name, image folder, and the product ID range it covers */
+    /* Represents a subcategory, including its unique ID, display name, image folder, and the product ID range associated with it */
     public static class Subcategory implements Serializable {
         private final int id;
         private final String name;
@@ -27,6 +27,7 @@ public class CategoryBean implements Serializable {
         private final int minId;
         private final int maxId;
 
+        /* Creates a new subcategory definition */
         public Subcategory(int id, String name, String folder, int minId, int maxId) {
             this.id = id;
             this.name = name;
@@ -35,17 +36,28 @@ public class CategoryBean implements Serializable {
             this.maxId = maxId;
         }
 
+        /* Returns the subcategory ID */
         public int getId() { return id; }
+
+        /* Returns the display name of the subcategory */
         public String getName() { return name; }
+
+        /* Returns the image folder associated with the subcategory */
         public String getFolder() { return folder; }
+
+        /* Returns the first product ID in the subcategory range */
         public int getMinId() { return minId; }
+
+        /* Returns the last product ID in the subcategory range */
         public int getMaxId() { return maxId; }
     }
 
-    // Internal helper structure used only during setup, before a stable ID exists
+    /* Temporary helper object used during initialization before stable subcategory IDs are assigned. */
     private static class RawSub {
         final String name, folder;
         final int minId, maxId;
+
+        /* Creates a raw subcategory definition. */
         RawSub(String name, String folder, int minId, int maxId) {
             this.name = name;
             this.folder = folder;
@@ -57,19 +69,17 @@ public class CategoryBean implements Serializable {
     private final Map<String, String> categoryNames = new LinkedHashMap<>();
     private final Map<String, String> categoryFolders = new LinkedHashMap<>();
     private final Map<String, List<Subcategory>> subcategoriesByCategory = new LinkedHashMap<>();
-
-    // Subcategory ID (1-46) -> relative image-folder path, e.g. "Keyboards/Synths"
     private final Map<Integer, String> imageFolderById = new LinkedHashMap<>();
-    // Subcategory ID -> Hebrew display name, for convenience (e.g. in the admin table)
     private final Map<Integer, String> subcategoryNameById = new LinkedHashMap<>();
-
     private final List<SelectItem> groupedSubcategoryItems = new ArrayList<>();
 
     private int nextId = 1;
 
+    /* Initializes all category and subcategory definitions and builds the grouped dropdown items used throughout the application */
     @PostConstruct
     public void init() {
 
+        /* Register all top-level categories and their Hebrew display names */
         categoryNames.put("keyboards", "קלידים");
         categoryNames.put("guitars", "גיטרות");
         categoryNames.put("drums", "תופים וכלי הקשה");
@@ -78,6 +88,7 @@ public class CategoryBean implements Serializable {
         categoryNames.put("studio", "ציוד לאולפן");
         categoryNames.put("stage", "ציוד במה");
 
+        /* Map category keys to their corresponding image folder names */
         categoryFolders.put("keyboards", "Keyboards");
         categoryFolders.put("guitars", "Guitars");
         categoryFolders.put("drums", "Drums");
@@ -86,6 +97,7 @@ public class CategoryBean implements Serializable {
         categoryFolders.put("studio", "Studio Equipment");
         categoryFolders.put("stage", "Stage Equipment");
 
+        /* Register all subcategories for each top-level category */
         addCategory("keyboards",
                 raw("פסנתרי כנף", "Grand pianos", 228, 264),
                 raw("פסנתרים עומדים", "Acoustic pianos", 265, 288),
@@ -153,58 +165,81 @@ public class CategoryBean implements Serializable {
                 raw("ציוד הגברה היקפי", "Additional Stage Equipment", 1860, 1901)
         );
 
+        /* Build grouped select items for use in dropdown menus */
         buildGroupedItems();
     }
 
+    /* Creates a temporary raw subcategory definition */
     private RawSub raw(String name, String folder, int minId, int maxId) {
+        /* Package the supplied data into a RawSub object */
         return new RawSub(name, folder, minId, maxId);
     }
 
     /* Assigns a stable incrementing ID to each raw subcategory and registers it in all the maps */
     private void addCategory(String categoryKey, RawSub... raws) {
+
+        /* Create the subcategory collection for this category */
         List<Subcategory> list = new ArrayList<>();
+
+        /* Retrieve the parent category's image folder */
         String categoryFolder = categoryFolders.get(categoryKey);
+
+        /* Convert each raw definition into a fully registered subcategory */
         for (RawSub r : raws) {
+            /* Create the subcategory and assign a unique incremental ID */
             Subcategory s = new Subcategory(nextId++, r.name, r.folder, r.minId, r.maxId);
+            /* Add the subcategory to the category list */
             list.add(s);
+            /* Store lookup information for image folders and display names */
             imageFolderById.put(s.getId(), categoryFolder + "/" + s.getFolder());
             subcategoryNameById.put(s.getId(), s.getName());
         }
+        /* Register the completed subcategory list under its category */
         subcategoriesByCategory.put(categoryKey, list);
     }
 
     /* Builds the grouped (by category) dropdown items used in the admin form */
     private void buildGroupedItems() {
+        /* Process each category and its subcategories */
         for (Map.Entry<String, List<Subcategory>> entry : subcategoriesByCategory.entrySet()) {
+            /* Retrieve the category display name for the group label */
             String groupLabel = categoryNames.get(entry.getKey());
+            /* Create a grouped dropdown section */
             SelectItemGroup group = new SelectItemGroup(groupLabel);
+            /* Build SelectItem entries for each subcategory */
             SelectItem[] items = new SelectItem[entry.getValue().size()];
             int i = 0;
             for (Subcategory s : entry.getValue()) {
+                /* Use the subcategory ID as the value and its name as the label */
                 items[i++] = new SelectItem(s.getId(), s.getName());
             }
+            /* Attach items to the group and register the group */
             group.setSelectItems(items);
             groupedSubcategoryItems.add(group);
         }
     }
 
-    // --- Used by subcategories.xhtml - left unchanged ---
+    /* Returns the display name of a category by its key */
     public String getCategoryName(String categoryId) {
+        /* Return the category name or an empty string if not found */
         return categoryNames.getOrDefault(categoryId, "");
     }
 
-    // --- Used by subcategories.xhtml - left unchanged ---
+    /* Returns all subcategories belonging to the specified category */
     public List<Subcategory> getSubcategories(String categoryId) {
+        /* Return the matching subcategory list or an empty list if absent */
         return subcategoriesByCategory.getOrDefault(categoryId, Collections.emptyList());
     }
 
-    // --- New: used by the dropdown menu in the admin page ---
+    /* Returns the grouped subcategory items used by the admin dropdown menu */
     public List<SelectItem> getGroupedSubcategoryItems() {
+        /* Return the prebuilt grouped dropdown structure */
         return groupedSubcategoryItems;
     }
 
-    // --- New: for convenient display in the admin table ---
+    /* Returns the display name of a subcategory by its ID */
     public String getSubcategoryName(int categoryId) {
+        /* Look up the subcategory name and return an empty string if missing */
         return subcategoryNameById.getOrDefault(categoryId, "");
     }
 
@@ -217,6 +252,7 @@ public class CategoryBean implements Serializable {
      * categoryId, not productId as it used to be.
      */
     public String getImageFolder(int categoryId) {
+        /* Retrieve the folder path for the specified subcategory */
         return imageFolderById.getOrDefault(categoryId, "");
     }
 }

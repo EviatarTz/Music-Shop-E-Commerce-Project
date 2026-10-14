@@ -15,19 +15,24 @@ import java.io.Serializable;
 @RequestScoped
 public class ErrorBean implements Serializable {
 
+    /* Returns an error message for the current request */
     public String getMessage() {
+
+        /* Get the request exception, if any */
         Object exceptionAttr = FacesContext.getCurrentInstance()
                 .getExternalContext()
                 .getRequestMap()
                 .get("jakarta.servlet.error.exception");
 
+        /* Show business error messages directly */
         if (exceptionAttr instanceof BusinessException businessException) {
-            // Business errors are safe to show to the user as-is
             return businessException.getMessage();
-        } else if (exceptionAttr instanceof Throwable) {
-            // System/unexpected errors - don't expose technical details
+        }
+        /* Hide technical details from users */
+        else if (exceptionAttr instanceof Throwable) {
             return "An unexpected error occurred. Please try again later.";
         } else {
+            /* Default message when no exception exists */
             return "Page not found.";
         }
     }

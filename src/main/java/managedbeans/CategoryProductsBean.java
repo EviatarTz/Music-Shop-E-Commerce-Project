@@ -24,16 +24,30 @@ public class CategoryProductsBean implements Serializable {
 
     /* Loads the products for the current categoryId */
     public void loadProducts() {
+        /* Retrieve all products that match the selected category ID */
         products = productService.getProductsByCategory(categoryId);
     }
 
-    public int getCategoryId() { return categoryId; }
-    public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
+    /* Returns the currently selected category ID */
+    public int getCategoryId() {
+        /* Return the active category identifier */
+        return categoryId;
+    }
+    /* Updates the currently selected category ID */
+    public void setCategoryId(int categoryId) {
+        /* Store the new category identifier */
+        this.categoryId = categoryId;
+    }
 
+    /* Returns the products for the current category, loading them if needed */
     public List<Product> getProducts() {
+
+        /* Lazily load products if they have not yet been initialized */
         if (products == null) {
             loadProducts();
         }
+
+        /* Return the cached product list */
         return products;
     }
 

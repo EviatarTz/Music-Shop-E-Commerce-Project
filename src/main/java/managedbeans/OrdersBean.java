@@ -21,13 +21,19 @@ import java.util.List;
 @RequestScoped
 public class OrdersBean implements Serializable {
 
+    /* Service used to retrieve order information */
     private final OrderService orderService = new OrderService();
 
+    /* Orders belonging to the current user */
     private List<Order> orders = new ArrayList<>();
 
     /* Redirects to login if no user is logged in, otherwise loads their orders (newest first) */
     public void checkLoginAndLoad() {
+
+        /* Get the logged-in user */
         User user = getLoggedInUser();
+
+        /* Redirect guests to the login page */
         if (user == null) {
             try {
                 FacesContext.getCurrentInstance().getExternalContext().redirect("login.xhtml");
@@ -37,13 +43,22 @@ public class OrdersBean implements Serializable {
             return;
         }
 
+        /* Load the user's orders */
         orders = new ArrayList<>(orderService.getOrdersByUser(user.getUserId()));
+
+        /* Show newest orders first */
         orders.sort(Comparator.comparingInt(Order::getOrderId).reversed());
     }
 
+    /* Returns the logged-in user */
     private User getLoggedInUser() {
         return (User) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("user");
     }
 
-    public List<Order> getOrders() { return orders; }
+    /* Returns the user's orders */
+    public List<Order> getOrders() {
+
+        /* Return the loaded orders */
+        return orders;
+    }
 }

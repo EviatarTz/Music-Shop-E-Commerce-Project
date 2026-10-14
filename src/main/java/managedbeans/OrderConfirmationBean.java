@@ -24,11 +24,18 @@ import java.util.List;
 @RequestScoped
 public class OrderConfirmationBean implements Serializable {
 
+    /* Service used to retrieve order information */
     private final OrderService orderService = new OrderService();
+    /* Service used to retrieve product information */
     private final ProductService productService = new ProductService();
 
+    /* ID of the order being displayed */
     private int orderId;
+
+    /* The loaded order details */
     private Order order;
+
+    /* Order items prepared for display */
     private List<ConfirmationLine> items = new ArrayList<>();
 
     /* View-model row: an order line item joined with its product, for display */
@@ -37,16 +44,32 @@ public class OrderConfirmationBean implements Serializable {
         private final int quantity;
         private final double unitPrice;
 
+        /* Creates a confirmation line */
         public ConfirmationLine(Product product, int quantity, double unitPrice) {
             this.product = product;
             this.quantity = quantity;
             this.unitPrice = unitPrice;
         }
 
-        public Product getProduct() { return product; }
-        public int getQuantity() { return quantity; }
-        public double getUnitPrice() { return unitPrice; }
-        public double getSubtotal() { return unitPrice * quantity; }
+        /* Returns the product */
+        public Product getProduct() {
+            return product;
+        }
+
+        /* Returns the quantity ordered */
+        public int getQuantity() {
+            return quantity;
+        }
+
+        /* Returns the price per unit */
+        public double getUnitPrice() {
+            return unitPrice;
+        }
+
+        /* Returns the line subtotal */
+        public double getSubtotal() {
+            return unitPrice * quantity;
+        }
     }
 
     /*
@@ -54,43 +77,78 @@ public class OrderConfirmationBean implements Serializable {
         in and that the order actually belongs to them (otherwise redirects away).
     */
     public void loadOrder() {
+
+        /* Get the current user */
         User user = getLoggedInUser();
+
+        /* Redirect guests to the login page */
         if (user == null) {
             redirect("login.xhtml");
             return;
         }
 
+        /* Load the requested order */
         order = orderService.getOrderById(orderId);
 
+        /* Ensure the order exists and belongs to the current user */
         if (order == null || order.getUserId() != user.getUserId()) {
             redirect("products.xhtml");
             return;
         }
 
+        /* Reset the displayed order items */
         items = new ArrayList<>();
+
+        /* Load all items belonging to the order */
         List<OrderItem> orderItems = orderService.getOrderItems(orderId);
+
+        /* Join each order item with its product */
         for (OrderItem oi : orderItems) {
+
+            /* Retrieve the associated product */
             Product product = productService.getProductById(oi.getProductId());
+
+            /* Add valid products to the display list */
             if (product != null) {
                 items.add(new ConfirmationLine(product, oi.getQuantity(), oi.getUnitPrice()));
             }
         }
     }
 
+    /* Redirects to the specified page */
     private void redirect(String page) {
         try {
+            /* Perform the redirect */
             FacesContext.getCurrentInstance().getExternalContext().redirect(page);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /* Returns the logged-in user */
     private User getLoggedInUser() {
+        /* Read the user from the session */
         return (User) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get("user");
     }
 
-    public int getOrderId() { return orderId; }
-    public void setOrderId(int orderId) { this.orderId = orderId; }
-    public Order getOrder() { return order; }
-    public List<ConfirmationLine> getItems() { return items; }
+    /* Returns the current order ID */
+    public int getOrderId() {
+        return orderId;
+    }
+
+    /* Returns the loaded order */
+    public Order getOrder() {
+        return order;
+    }
+
+    /* Returns the order items */
+    public List<ConfirmationLine> getItems() {
+        return items;
+    }
+
+    /* Updates the current order ID */
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
+
 }
